@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+      background: #ffffff;
+    }
+    #vis {
+      width: 90%;
+      max-width: 1200px;
+    }
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>Vega-Lite Assignment 3 - Sales Data Visualization</h2>
+  <div id="vis"></div>
+
+  <script type="text/javascript">
+    const spec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "data": {
+        "url": "HW_III.csv",
+        "format": {
+          "parse": {
+            "OrderDate": "date",
+            "Units": "number",
+            "Total": "number",
+            "Unit Cost": "number"
+          }
+        }
+      },
+      "vconcat": [
+        {
+          "title": "1. Donut Chart: Total by Rep",
+          "mark": {
+            "type": "arc",
+            "innerRadius": 50,
+            "tooltip": true
+          },
+          "encoding": {
+            "theta": {
+              "field": "Total",
+              "type": "quantitative",
+              "aggregate": "sum"
+            },
+            "color": {
+              "field": "Rep",
+              "type": "nominal",
+              "legend": {
+                "title": "Rep"
+              }
+            }
+          }
+        },
+        {
+          "title": "2. Streamgraph: Total Over Time by Item",
+          "width": 700,
+          "mark": {
+            "type": "area"
+          },
+          "encoding": {
+            "x": {
+              "timeUnit": "yearmonth",
+              "field": "OrderDate",
+              "type": "temporal",
+              "axis": {
+                "domain": false,
+                "format": "%b %Y",
+                "title": "Order Date"
+              }
+            },
+            "y": {
+              "aggregate": "sum",
+              "field": "Total",
+              "type": "quantitative",
+              "stack": "center",
+              "axis": null
+            },
+            "color": {
+              "field": "Item",
+              "type": "nominal",
+              "legend": {
+                "title": "Item"
+              }
+            }
+          }
+        },
+        {
+          "title": "3. Trellis Histogram: Units for Items with Mean Overlay",
+          "facet": {
+            "field": "Item",
+            "type": "nominal",
+            "title": null
+          },
+          "columns": 3,
+          "spec": {
+            "width": 180,
+            "height": 140,
+            "layer": [
+              {
+                "mark": {
+                  "type": "bar",
+                  "tooltip": true
+                },
+                "encoding": {
+                  "x": {
+                    "bin": true,
+                    "field": "Units",
+                    "type": "quantitative",
+                    "title": "Units"
+                  },
+                  "y": {
+                    "aggregate": "count",
+                    "type": "quantitative",
+                    "title": "Count"
+                  }
+                }
+              },
+              {
+                "mark": {
+                  "type": "rule",
+                  "color": "red",
+                  "size": 2
+                },
+                "encoding": {
+                  "x": {
+                    "aggregate": "mean",
+                    "field": "Units",
+                    "type": "quantitative"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "title": "4 & 5. Interactive Scatter Plot and Linked Bar Chart",
+          "hconcat": [
+            {
+              "params": [
+                {
+                  "name": "brush",
+                  "select": {
+                    "type": "interval"
+                  }
+                }
+              ],
+              "mark": {
+                "type": "point",
+                "filled": true,
+                "tooltip": true
+              },
+              "encoding": {
+                "x": {
+                  "field": "Units",
+                  "type": "quantitative",
+                  "title": "Units"
+                },
+                "y": {
+                  "field": "Total",
+                  "type": "quantitative",
+                  "title": "Total"
+                },
+                "color": {
+                  "condition": {
+                    "param": "brush",
+                    "field": "Region",
+                    "type": "nominal"
+                  },
+                  "value": "lightgray"
+                }
+              }
+            },
+            {
+              "transform": [
+                {
+                  "filter": {
+                    "param": "brush"
+                  }
+                }
+              ],
+              "mark": {
+                "type": "bar",
+                "tooltip": true
+              },
+              "encoding": {
+                "x": {
+                  "aggregate": "sum",
+                  "field": "Total",
+                  "type": "quantitative",
+                  "title": "Sum of Total"
+                },
+                "y": {
+                  "field": "Region",
+                  "type": "nominal",
+                  "title": "Region"
+                },
+                "color": {
+                  "field": "Region",
+                  "type": "nominal",
+                  "legend": null
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "resolve": {
+        "scale": {
+          "color": "independent"
+        }
+      }
+    };
+
+    vegaEmbed('#vis', spec);
+  </script>
+</body>
+</html>
