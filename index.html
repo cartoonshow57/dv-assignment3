@@ -106,8 +106,7 @@
           "title": "3. Trellis Histogram: Units for Items with Mean Overlay",
           "facet": {
             "field": "Item",
-            "type": "nominal",
-            "title": null
+            "type": "nominal"
           },
           "columns": 3,
           "spec": {
@@ -151,75 +150,90 @@
           }
         },
         {
-          "title": "4 & 5. Interactive Scatter Plot and Linked Bar Chart",
-          "hconcat": [
+          "title": "4. Interactive Scatter: Units vs Total (brush to highlight)",
+          "width": 500,
+          "height": 300,
+          "params": [
             {
-              "params": [
-                {
-                  "name": "brush",
-                  "select": {
-                    "type": "interval"
-                  }
-                }
-              ],
-              "mark": {
-                "type": "point",
-                "filled": true,
-                "tooltip": true
-              },
-              "encoding": {
-                "x": {
-                  "field": "Units",
-                  "type": "quantitative",
-                  "title": "Units"
-                },
-                "y": {
-                  "field": "Total",
-                  "type": "quantitative",
-                  "title": "Total"
-                },
-                "color": {
-                  "condition": {
-                    "param": "brush",
-                    "field": "Region",
-                    "type": "nominal"
-                  },
-                  "value": "lightgray"
-                }
-              }
-            },
-            {
-              "transform": [
-                {
-                  "filter": {
-                    "param": "brush"
-                  }
-                }
-              ],
-              "mark": {
-                "type": "bar",
-                "tooltip": true
-              },
-              "encoding": {
-                "x": {
-                  "aggregate": "sum",
-                  "field": "Total",
-                  "type": "quantitative",
-                  "title": "Sum of Total"
-                },
-                "y": {
-                  "field": "Region",
-                  "type": "nominal",
-                  "title": "Region"
-                },
-                "color": {
-                  "field": "Region",
-                  "type": "nominal",
-                  "legend": null
-                }
+              "name": "brush",
+              "select": {
+                "type": "interval"
               }
             }
-          ]
+          ],
+          "mark": {
+            "type": "point",
+            "filled": true,
+            "tooltip": true
+          },
+          "encoding": {
+            "x": {
+              "field": "Units",
+              "type": "quantitative",
+              "title": "Units"
+            },
+            "y": {
+              "field": "Total",
+              "type": "quantitative",
+              "title": "Total ($)"
+            },
+            "color": {
+              "condition": {
+                "param": "brush",
+                "field": "Region",
+                "type": "nominal"
+              },
+              "value": "lightgray"
+            },
+            "size": {
+              "condition": {
+                "param": "brush",
+                "value": 80
+              },
+              "value": 30
+            }
+          }
+        },
+        {
+          "title": "5. Total by Item per Region (select Region from dropdown)",
+          "width": 500,
+          "height": 250,
+          "params": [
+            {
+              "name": "regionFilter",
+              "value": "All",
+              "bind": {
+                "input": "select",
+                "options": ["All", "East", "Central", "West"],
+                "name": "Region: "
+              }
+            }
+          ],
+          "transform": [
+            { "filter": "regionFilter === 'All' || datum.Region === regionFilter" }
+          ],
+          "mark": {
+            "type": "bar",
+            "tooltip": true
+          },
+          "encoding": {
+            "x": {
+              "field": "Item",
+              "type": "nominal",
+              "title": "Item"
+            },
+            "y": {
+              "aggregate": "sum",
+              "field": "Total",
+              "type": "quantitative",
+              "title": "Sum of Total ($)"
+            },
+            "color": {
+              "field": "Item",
+              "type": "nominal",
+              "legend": null
+            }
+          }
         }
       ],
       "resolve": {
