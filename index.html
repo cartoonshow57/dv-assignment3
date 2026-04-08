@@ -15,13 +15,20 @@
       padding: 20px;
       background: #ffffff;
     }
-    #vis {
+    .chart-container {
       width: 90%;
       max-width: 1200px;
+      margin-bottom: 40px;
     }
     h2 {
       margin-bottom: 20px;
       text-align: center;
+    }
+    h3 {
+      text-align: center;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 2px solid #ccc;
     }
   </style>
 </head>
@@ -30,225 +37,206 @@
   <p style="margin-top: 5px; font-size: 16px; color: #555;">
     Lakshya 2024EET2356
   </p>
-  <div id="vis"></div>
+
+  <div class="chart-container" id="vis1"></div>
+  <div class="chart-container" id="vis2"></div>
+  <div class="chart-container" id="vis3"></div>
+  <div class="chart-container" id="vis4"></div>
+  <div class="chart-container" id="vis5"></div>
+
+  <h3>6. Multiview — All 5 Views Concatenated</h3>
+  <div class="chart-container" id="multiview"></div>
 
   <script type="text/javascript">
-    const spec = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "data": {
-        "url": "HW_III.csv",
-        "format": {
-          "parse": {
-            "OrderDate": "date",
-            "Units": "number",
-            "Total": "number",
-            "Unit Cost": "number"
-          }
-        }
-      },
-      "title": "Multiview: Office Supply Sales Dashboard",
-      "concat": [
-        {
-          "title": "1. Donut Chart: Total by Rep",
-          "mark": {
-            "type": "arc",
-            "innerRadius": 50,
-            "tooltip": true
-          },
-          "encoding": {
-            "theta": {
-              "field": "Total",
-              "type": "quantitative",
-              "aggregate": "sum"
-            },
-            "color": {
-              "field": "Rep",
-              "type": "nominal",
-              "legend": {
-                "title": "Rep"
-              }
-            }
-          }
-        },
-        {
-          "title": "2. Streamgraph: Total Over Time by Item",
-          "width": 500,
-          "mark": {
-            "type": "area"
-          },
-          "encoding": {
-            "x": {
-              "timeUnit": "yearmonth",
-              "field": "OrderDate",
-              "type": "temporal",
-              "axis": {
-                "domain": false,
-                "format": "%b %Y",
-                "title": "Order Date"
-              }
-            },
-            "y": {
-              "aggregate": "sum",
-              "field": "Total",
-              "type": "quantitative",
-              "stack": "center",
-              "axis": null
-            },
-            "color": {
-              "field": "Item",
-              "type": "nominal",
-              "legend": {
-                "title": "Item"
-              }
-            }
-          }
-        },
-        {
-          "title": "3. Trellis Histogram: Units for Items with Mean Overlay",
-          "facet": {
-            "field": "Item",
-            "type": "nominal"
-          },
-          "columns": 5,
-          "spec": {
-            "width": 130,
-            "height": 140,
-            "layer": [
-              {
-                "mark": {
-                  "type": "bar",
-                  "tooltip": true
-                },
-                "encoding": {
-                  "x": {
-                    "bin": true,
-                    "field": "Units",
-                    "type": "quantitative",
-                    "title": "Units"
-                  },
-                  "y": {
-                    "aggregate": "count",
-                    "type": "quantitative",
-                    "title": "Count"
-                  }
-                }
-              },
-              {
-                "mark": {
-                  "type": "rule",
-                  "color": "red",
-                  "size": 2
-                },
-                "encoding": {
-                  "x": {
-                    "aggregate": "mean",
-                    "field": "Units",
-                    "type": "quantitative"
-                  }
-                }
-              }
-            ]
-          }
-        },
-        {
-          "title": "4. Interactive Scatter: Units vs Total (brush to highlight)",
-          "width": 350,
-          "height": 280,
-          "params": [
-            {
-              "name": "brush",
-              "select": {
-                "type": "interval"
-              }
-            }
-          ],
-          "mark": {
-            "type": "point",
-            "filled": true,
-            "tooltip": true
-          },
-          "encoding": {
-            "x": {
-              "field": "Units",
-              "type": "quantitative",
-              "title": "Units"
-            },
-            "y": {
-              "field": "Total",
-              "type": "quantitative",
-              "title": "Total ($)"
-            },
-            "color": {
-              "condition": {
-                "param": "brush",
-                "field": "Region",
-                "type": "nominal"
-              },
-              "value": "lightgray"
-            },
-            "size": {
-              "condition": {
-                "param": "brush",
-                "value": 80
-              },
-              "value": 30
-            }
-          }
-        },
-        {
-          "title": "5. Sales by Rep per Region (click legend to highlight)",
-          "width": 350,
-          "height": 280,
-          "params": [
-            {
-              "name": "regionSelect",
-              "select": {
-                "type": "point",
-                "fields": ["Region"]
-              },
-              "bind": "legend"
-            }
-          ],
-          "mark": {
-            "type": "bar",
-            "tooltip": true
-          },
-          "encoding": {
-            "x": {
-              "field": "Rep",
-              "type": "nominal",
-              "title": "Sales Rep",
-              "sort": "-y"
-            },
-            "y": {
-              "aggregate": "sum",
-              "field": "Total",
-              "type": "quantitative",
-              "title": "Sum of Total ($)"
-            },
-            "color": {
-              "field": "Region",
-              "type": "nominal"
-            },
-            "opacity": {
-              "condition": {
-                "param": "regionSelect",
-                "value": 1
-              },
-              "value": 0.2
-            }
-          }
-        }
-      ],
-      "columns": 2,
-      "resolve": {
-        "scale": {
-          "color": "independent"
+    const data = {
+      "url": "HW_III.csv",
+      "format": {
+        "parse": {
+          "OrderDate": "date",
+          "Units": "number",
+          "Total": "number",
+          "Unit Cost": "number"
         }
       }
     };
 
-    vegaEmbed('#vis', spec);
+    const view1 = {
+      "title": "1. Donut Chart: Total by Rep",
+      "mark": {
+        "type": "arc",
+        "innerRadius": 50,
+        "tooltip": true
+      },
+      "encoding": {
+        "theta": {
+          "field": "Total",
+          "type": "quantitative",
+          "aggregate": "sum"
+        },
+        "color": {
+          "field": "Rep",
+          "type": "nominal",
+          "legend": { "title": "Rep" }
+        }
+      }
+    };
+
+    const view2 = {
+      "title": "2. Streamgraph: Total Over Time by Item",
+      "width": 700,
+      "mark": { "type": "area" },
+      "encoding": {
+        "x": {
+          "timeUnit": "yearmonth",
+          "field": "OrderDate",
+          "type": "temporal",
+          "axis": {
+            "domain": false,
+            "format": "%b %Y",
+            "title": "Order Date"
+          }
+        },
+        "y": {
+          "aggregate": "sum",
+          "field": "Total",
+          "type": "quantitative",
+          "stack": "center",
+          "axis": null
+        },
+        "color": {
+          "field": "Item",
+          "type": "nominal",
+          "legend": { "title": "Item" }
+        }
+      }
+    };
+
+    const view3 = {
+      "title": "3. Trellis Histogram: Units for Items with Mean Overlay",
+      "facet": {
+        "field": "Item",
+        "type": "nominal"
+      },
+      "columns": 5,
+      "spec": {
+        "width": 130,
+        "height": 140,
+        "layer": [
+          {
+            "mark": { "type": "bar", "tooltip": true },
+            "encoding": {
+              "x": {
+                "bin": true,
+                "field": "Units",
+                "type": "quantitative",
+                "title": "Units"
+              },
+              "y": {
+                "aggregate": "count",
+                "type": "quantitative",
+                "title": "Count"
+              }
+            }
+          },
+          {
+            "mark": { "type": "rule", "color": "red", "size": 2 },
+            "encoding": {
+              "x": {
+                "aggregate": "mean",
+                "field": "Units",
+                "type": "quantitative"
+              }
+            }
+          }
+        ]
+      }
+    };
+
+    const view4 = {
+      "title": "4. Interactive Scatter: Units vs Total (drag to brush)",
+      "width": 500,
+      "height": 300,
+      "params": [
+        {
+          "name": "brush",
+          "select": { "type": "interval" }
+        }
+      ],
+      "mark": { "type": "point", "filled": true, "tooltip": true },
+      "encoding": {
+        "x": { "field": "Units", "type": "quantitative", "title": "Units" },
+        "y": { "field": "Total", "type": "quantitative", "title": "Total ($)" },
+        "color": {
+          "condition": { "param": "brush", "field": "Region", "type": "nominal" },
+          "value": "lightgray"
+        },
+        "size": {
+          "condition": { "param": "brush", "value": 80 },
+          "value": 30
+        }
+      }
+    };
+
+    const view5 = {
+      "title": "5. Sales by Rep per Region (click legend to highlight)",
+      "width": 500,
+      "height": 280,
+      "params": [
+        {
+          "name": "regionSelect",
+          "select": { "type": "point", "fields": ["Region"] },
+          "bind": "legend"
+        }
+      ],
+      "mark": { "type": "bar", "tooltip": true },
+      "encoding": {
+        "x": { "field": "Rep", "type": "nominal", "title": "Sales Rep", "sort": "-y" },
+        "y": { "aggregate": "sum", "field": "Total", "type": "quantitative", "title": "Sum of Total ($)" },
+        "color": { "field": "Region", "type": "nominal" },
+        "opacity": {
+          "condition": { "param": "regionSelect", "value": 1 },
+          "value": 0.2
+        }
+      }
+    };
+
+    const schema = "https://vega.github.io/schema/vega-lite/v5.json";
+
+    vegaEmbed('#vis1', { "$schema": schema, "data": data, ...view1 });
+    vegaEmbed('#vis2', { "$schema": schema, "data": data, ...view2 });
+    vegaEmbed('#vis3', { "$schema": schema, "data": data, ...view3 });
+    vegaEmbed('#vis4', { "$schema": schema, "data": data, ...view4 });
+    vegaEmbed('#vis5', { "$schema": schema, "data": data, ...view5 });
+
+    // Deep-clone views for the multiview so they don't share refs or conflict
+    // with the individually rendered charts. Shrink widths to fit in a grid.
+    const mv1 = JSON.parse(JSON.stringify(view1));
+    const mv2 = JSON.parse(JSON.stringify(view2));
+    mv2.width = 350;
+    const mv3 = JSON.parse(JSON.stringify(view3));
+    mv3.columns = 3;
+    mv3.spec.width = 80;
+    mv3.spec.height = 100;
+    const mv4 = JSON.parse(JSON.stringify(view4));
+    mv4.width = 300;
+    mv4.height = 220;
+    mv4.params[0].name = "brush_mv";
+    mv4.encoding.color.condition.param = "brush_mv";
+    mv4.encoding.size.condition.param = "brush_mv";
+    const mv5 = JSON.parse(JSON.stringify(view5));
+    mv5.width = 300;
+    mv5.height = 220;
+    mv5.params[0].name = "regionSelect_mv";
+    mv5.encoding.opacity.condition.param = "regionSelect_mv";
+
+    vegaEmbed('#multiview', {
+      "$schema": schema,
+      "data": data,
+      "title": "Multiview: All 5 Views Concatenated (concat)",
+      "concat": [mv1, mv2, mv3, mv4, mv5],
+      "columns": 2,
+      "resolve": { "scale": { "color": "independent" } }
+    });
   </script>
 </body>
 </html>
