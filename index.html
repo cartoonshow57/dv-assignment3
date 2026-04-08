@@ -46,61 +46,66 @@
           }
         }
       },
+      "title": "Multiview: Office Supply Sales Dashboard",
       "vconcat": [
         {
-          "title": "1. Donut Chart: Total by Rep",
-          "mark": {
-            "type": "arc",
-            "innerRadius": 50,
-            "tooltip": true
-          },
-          "encoding": {
-            "theta": {
-              "field": "Total",
-              "type": "quantitative",
-              "aggregate": "sum"
+          "hconcat": [
+            {
+              "title": "1. Donut Chart: Total by Rep",
+              "mark": {
+                "type": "arc",
+                "innerRadius": 50,
+                "tooltip": true
+              },
+              "encoding": {
+                "theta": {
+                  "field": "Total",
+                  "type": "quantitative",
+                  "aggregate": "sum"
+                },
+                "color": {
+                  "field": "Rep",
+                  "type": "nominal",
+                  "legend": {
+                    "title": "Rep"
+                  }
+                }
+              }
             },
-            "color": {
-              "field": "Rep",
-              "type": "nominal",
-              "legend": {
-                "title": "Rep"
+            {
+              "title": "2. Streamgraph: Total Over Time by Item",
+              "width": 500,
+              "mark": {
+                "type": "area"
+              },
+              "encoding": {
+                "x": {
+                  "timeUnit": "yearmonth",
+                  "field": "OrderDate",
+                  "type": "temporal",
+                  "axis": {
+                    "domain": false,
+                    "format": "%b %Y",
+                    "title": "Order Date"
+                  }
+                },
+                "y": {
+                  "aggregate": "sum",
+                  "field": "Total",
+                  "type": "quantitative",
+                  "stack": "center",
+                  "axis": null
+                },
+                "color": {
+                  "field": "Item",
+                  "type": "nominal",
+                  "legend": {
+                    "title": "Item"
+                  }
+                }
               }
             }
-          }
-        },
-        {
-          "title": "2. Streamgraph: Total Over Time by Item",
-          "width": 700,
-          "mark": {
-            "type": "area"
-          },
-          "encoding": {
-            "x": {
-              "timeUnit": "yearmonth",
-              "field": "OrderDate",
-              "type": "temporal",
-              "axis": {
-                "domain": false,
-                "format": "%b %Y",
-                "title": "Order Date"
-              }
-            },
-            "y": {
-              "aggregate": "sum",
-              "field": "Total",
-              "type": "quantitative",
-              "stack": "center",
-              "axis": null
-            },
-            "color": {
-              "field": "Item",
-              "type": "nominal",
-              "legend": {
-                "title": "Item"
-              }
-            }
-          }
+          ]
         },
         {
           "title": "3. Trellis Histogram: Units for Items with Mean Overlay",
@@ -108,9 +113,9 @@
             "field": "Item",
             "type": "nominal"
           },
-          "columns": 3,
+          "columns": 5,
           "spec": {
-            "width": 180,
+            "width": 130,
             "height": 140,
             "layer": [
               {
@@ -150,90 +155,97 @@
           }
         },
         {
-          "title": "4. Interactive Scatter: Units vs Total (brush to highlight)",
-          "width": 500,
-          "height": 300,
-          "params": [
+          "hconcat": [
             {
-              "name": "brush",
-              "select": {
-                "type": "interval"
+              "title": "4. Interactive Scatter: Units vs Total (brush to highlight)",
+              "width": 350,
+              "height": 280,
+              "params": [
+                {
+                  "name": "brush",
+                  "select": {
+                    "type": "interval"
+                  }
+                }
+              ],
+              "mark": {
+                "type": "point",
+                "filled": true,
+                "tooltip": true
+              },
+              "encoding": {
+                "x": {
+                  "field": "Units",
+                  "type": "quantitative",
+                  "title": "Units"
+                },
+                "y": {
+                  "field": "Total",
+                  "type": "quantitative",
+                  "title": "Total ($)"
+                },
+                "color": {
+                  "condition": {
+                    "param": "brush",
+                    "field": "Region",
+                    "type": "nominal"
+                  },
+                  "value": "lightgray"
+                },
+                "size": {
+                  "condition": {
+                    "param": "brush",
+                    "value": 80
+                  },
+                  "value": 30
+                }
+              }
+            },
+            {
+              "title": "5. Sales by Rep per Region (click legend to highlight)",
+              "width": 350,
+              "height": 280,
+              "params": [
+                {
+                  "name": "regionSelect",
+                  "select": {
+                    "type": "point",
+                    "fields": ["Region"]
+                  },
+                  "bind": "legend"
+                }
+              ],
+              "mark": {
+                "type": "bar",
+                "tooltip": true
+              },
+              "encoding": {
+                "x": {
+                  "field": "Rep",
+                  "type": "nominal",
+                  "title": "Sales Rep",
+                  "sort": "-y"
+                },
+                "y": {
+                  "aggregate": "sum",
+                  "field": "Total",
+                  "type": "quantitative",
+                  "title": "Sum of Total ($)"
+                },
+                "color": {
+                  "field": "Region",
+                  "type": "nominal"
+                },
+                "opacity": {
+                  "condition": {
+                    "param": "regionSelect",
+                    "value": 1
+                  },
+                  "value": 0.2
+                }
               }
             }
-          ],
-          "mark": {
-            "type": "point",
-            "filled": true,
-            "tooltip": true
-          },
-          "encoding": {
-            "x": {
-              "field": "Units",
-              "type": "quantitative",
-              "title": "Units"
-            },
-            "y": {
-              "field": "Total",
-              "type": "quantitative",
-              "title": "Total ($)"
-            },
-            "color": {
-              "condition": {
-                "param": "brush",
-                "field": "Region",
-                "type": "nominal"
-              },
-              "value": "lightgray"
-            },
-            "size": {
-              "condition": {
-                "param": "brush",
-                "value": 80
-              },
-              "value": 30
-            }
-          }
-        },
-        {
-          "title": "5. Total by Item per Region (select Region from dropdown)",
-          "width": 500,
-          "height": 250,
-          "params": [
-            {
-              "name": "regionFilter",
-              "value": "All",
-              "bind": {
-                "input": "select",
-                "options": ["All", "East", "Central", "West"],
-                "name": "Region: "
-              }
-            }
-          ],
-          "transform": [
-            { "filter": "regionFilter === 'All' || datum.Region === regionFilter" }
-          ],
-          "mark": {
-            "type": "bar",
-            "tooltip": true
-          },
-          "encoding": {
-            "x": {
-              "field": "Item",
-              "type": "nominal",
-              "title": "Item"
-            },
-            "y": {
-              "aggregate": "sum",
-              "field": "Total",
-              "type": "quantitative",
-              "title": "Sum of Total ($)"
-            },
-            "color": {
-              "field": "Item",
-              "type": "nominal",
-              "legend": null
-            }
-          }
+          ]
         }
       ],
       "resolve": {
